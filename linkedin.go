@@ -19,6 +19,11 @@ func main() {
 
 	reader := csv.NewReader(file)
 
+	firstName := 0
+	lastName := 1
+	email := 2
+
+
 	lineCount := 0
 	for {
 		record, err := reader.Read()
@@ -29,6 +34,7 @@ func main() {
 			printError(err)
 		}
 
+		fmt.Println(record[firstName], record[lastName], record[email]);
 		fmt.Println("Record", lineCount, "is", record, "and has", len(record), "fields")
 
 		fmt.Println()
