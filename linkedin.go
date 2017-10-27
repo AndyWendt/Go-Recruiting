@@ -6,9 +6,20 @@ import (
 	"os"
 	"encoding/csv"
 	"strings"
+	"log"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	fmt.Println(os.Getenv("WORKABLE_API_KEY"))
+	//s3Bucket := os.Getenv("S3_BUCKET")
+	//secretKey := os.Getenv("SECRET_KEY")
+
 	file, err := os.Open("data/Connections.csv")
 
 	if err != nil {
