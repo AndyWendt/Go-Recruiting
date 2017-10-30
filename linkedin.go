@@ -8,6 +8,7 @@ import (
 	"strings"
 	"log"
 	"github.com/joho/godotenv"
+	"net/http"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	fmt.Println(os.Getenv("WORKABLE_API_KEY"))
+	//fmt.Println(os.Getenv("WORKABLE_API_KEY"))
 	//s3Bucket := os.Getenv("S3_BUCKET")
 	//secretKey := os.Getenv("SECRET_KEY")
 
@@ -67,6 +68,22 @@ func main() {
 		devs = append(devs, person)
 	}
 
+
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "https://vynyl.workable.com/spi/v3/candidates", nil)
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer " + os.Getenv("WORKABLE_API_KEY"))
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+
+
+	if err != nil {
+		printError(err)
+	}
+
+	io.Copy(os.Stdout, resp.Body)
+
 	data := make([][]string, 0)
 
 	data = append(data, []string{"First Name", "Last Name", "Email", "Company", "Position"})
@@ -74,8 +91,6 @@ func main() {
 	for _, dev := range devs {
 		data = append(data, []string{dev["first_name"], dev["last_name"], dev["email"], dev["company"], dev["position"]})
 	}
-
-
 
 	file, err = os.Create("data/result.csv")
 	checkError("Cannot create file", err)
