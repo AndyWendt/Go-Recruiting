@@ -77,7 +77,7 @@ func main() {
 
 
 
-	file, err = os.Create("result.csv")
+	file, err = os.Create("data/result.csv")
 	checkError("Cannot create file", err)
 	defer file.Close()
 
