@@ -38,7 +38,7 @@ func main() {
 	positionIndex := 4
 	//connectedOnIndex := 5
 	//tagsIndex := 6
-	out := make([]map[string]string, 0)
+	devs := make([]map[string]string, 0)
 
 
 	//lineCount := 0
@@ -64,10 +64,34 @@ func main() {
 			"position": record[positionIndex],
 		}
 
-		out = append(out, person)
+		devs = append(devs, person)
 	}
 
-	fmt.Println(len(out))
+	data := make([][]string, 0)
+
+	data = append(data, []string{"First Name", "Last Name", "Email", "Company", "Position"})
+
+	for _, dev := range devs {
+		data = append(data, []string{dev["first_name"], dev["last_name"], dev["email"], dev["company"], dev["position"]})
+	}
+
+
+
+	file, err = os.Create("result.csv")
+	checkError("Cannot create file", err)
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	for _, value := range data {
+		err := writer.Write(value)
+		checkError("Cannot write to file", err)
+	}
+
+
+
+	fmt.Println(len(devs))
 }
 
 func printError(err error) (n int, error error) {
@@ -86,4 +110,10 @@ func hasPosition(testPosition string) (hasPosition bool) {
 	}
 
 	return false
+}
+
+func checkError(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
+	}
 }
