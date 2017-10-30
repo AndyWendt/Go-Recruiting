@@ -32,13 +32,13 @@ func main() {
 	reader := csv.NewReader(file)
 
 	firstNameIndex := 0
-	//lastNameIndex := 1
-	//emailIndex := 2
-	//companyIndex := 3
+	lastNameIndex := 1
+	emailIndex := 2
+	companyIndex := 3
 	positionIndex := 4
 	//connectedOnIndex := 5
 	//tagsIndex := 6
-	out := make([][]string, 0)
+	out := make([]map[string]string, 0)
 
 
 	//lineCount := 0
@@ -51,19 +51,20 @@ func main() {
 			printError(err)
 		}
 
-
-		//fmt.Println(record[firstNameIndex], record[lastNameIndex], record[emailIndex])
-
-
-		if hasPosition(record[positionIndex]) {
-			tt := make([]string, 0)
-			out = append(out, append(tt, record[firstNameIndex]))
+		if false == hasPosition(record[positionIndex]) {
+			continue
 		}
 
-		//fmt.Println("Record", lineCount, "is", record, "and has", len(record), "fields")
 
-		//fmt.Println()
-		//lineCount += 1
+		person := map[string]string {
+			"first_name": record[firstNameIndex],
+			"last_name": record[lastNameIndex],
+			"email": record[emailIndex],
+			"company": record[companyIndex],
+			"position": record[positionIndex],
+		}
+
+		out = append(out, person)
 	}
 
 	fmt.Println(len(out))
