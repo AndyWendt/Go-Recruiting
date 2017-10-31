@@ -54,10 +54,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	//fmt.Println(os.Getenv("WORKABLE_API_KEY"))
-	//s3Bucket := os.Getenv("S3_BUCKET")
-	//secretKey := os.Getenv("SECRET_KEY")
-
 	file, err := os.Open("data/Connections.csv")
 
 	if err != nil {
