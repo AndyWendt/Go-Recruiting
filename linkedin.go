@@ -78,9 +78,10 @@ func main() {
 	//tagsIndex := 6
 	devs := make([]map[string]string, 0)
 	candidates := make([][]string, 0)
+	out := make([][]string, 0)
+	candidates = append(candidates, []string{"First Name", "Last Name", "Email", "Company", "Position"})
 
 
-	//lineCount := 0
 	for {
 		record, err := reader.Read()
 
@@ -121,8 +122,9 @@ func main() {
 
 	writeToFile("devs.csv", data)
 
-
-	fmt.Println(len(devs))
+	fmt.Println("LinkedIn Devs: " + string(len(devs)))
+	fmt.Println()
+	fmt.Println("Workable Matches: " + string(len(candidates)))
 }
 
 func printError(err error) (n int, error error) {
