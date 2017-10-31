@@ -219,8 +219,8 @@ func findDevsInLinkedInButNotWorkable(linkedInDevs [][]string, workableCandidate
 		found := false
 
 		for _, candidate := range workableCandidates {
-			firstNameMatch := strings.ToLower(dev[0]) == strings.ToLower(candidate[1])
-			lastNameMatch := strings.ToLower(dev[0]) == strings.ToLower(candidate[1])
+			firstNameMatch := strings.ToLower(dev[0]) == strings.ToLower(candidate[0])
+			lastNameMatch := strings.ToLower(dev[1]) == strings.ToLower(candidate[1])
 			if firstNameMatch && lastNameMatch {
 				found = true
 			}
