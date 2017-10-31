@@ -13,6 +13,7 @@ import (
 	"time"
 	"encoding/json"
 	"net/url"
+	//"net/http/httputil"
 )
 
 type WorkableCandidatesResponse struct {
@@ -49,22 +50,46 @@ type WorkableCandidatesResponse struct {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	loadEnv()
+
+	devsFromLinkedInMaps := loadLinkedInDevs()
+	candidatesInWorkable := getWorkableCandidates(devsFromLinkedInMaps)
+	devsFromLinkedInSlice := convertDevsFromLinkedInToSlice(devsFromLinkedInMaps)
+	devsNotInWorkable := findDevsInLinkedInButNotWorkable(devsFromLinkedInSlice, candidatesInWorkable)
+
+	writeToFile("workable-candidatesInWorkable.csv", candidatesInWorkable)
+	writeToFile("devsInLinkedInButNotInWorkable.csv", devsNotInWorkable)
+	writeToFile("devsFromLinkedInMaps.csv", devsFromLinkedInSlice)
+
+	fmt.Println(len(devsFromLinkedInMaps))
+	fmt.Println(len(devsNotInWorkable))
+	fmt.Println(len(candidatesInWorkable))
+}
+
+func convertDevsFromLinkedInToSlice(devsFromLinkedInMaps []map[string]string) [][]string {
+	data := make([][]string, 0)
+	data = append(data, []string{"First Name", "Last Name", "Email", "Company", "Position"})
+
+	for _, dev := range devsFromLinkedInMaps {
+		data = append(data, []string{dev["first_name"], dev["last_name"], dev["email"], dev["company"], dev["position"]})
 	}
 
-	file, err := os.Open("data/Connections.csv")
+	return data
+}
 
-	if err != nil {
-		printError(err)
-		return
-	}
+func getWorkableCandidates(devsFromLinkedIn []map[string]string) [][]string {
+	candidatesInWorkable := make([][]string, 0)
+	candidatesInWorkable = append(candidatesInWorkable, []string{"First Name", "Last Name", "Email", "Company", "Position"})
+	fmt.Println(len(devsFromLinkedIn))
+	candidatesInWorkable = getCandidates(os.Getenv("WORKABLE_URL")+"/candidates", devsFromLinkedIn, candidatesInWorkable)
+	fmt.Println(len(candidatesInWorkable))
+	return candidatesInWorkable
+}
 
+func loadLinkedInDevs() []map[string]string {
+	file := loadLinkedInConnections()
 	defer file.Close()
-
 	reader := csv.NewReader(file)
-
 	firstNameIndex := 0
 	lastNameIndex := 1
 	emailIndex := 2
@@ -73,10 +98,6 @@ func main() {
 	//connectedOnIndex := 5
 	//tagsIndex := 6
 	devs := make([]map[string]string, 0)
-	candidates := make([][]string, 0)
-	candidates = append(candidates, []string{"First Name", "Last Name", "Email", "Company", "Position"})
-
-
 	for {
 		record, err := reader.Read()
 
@@ -90,38 +111,29 @@ func main() {
 			continue
 		}
 
-
-		person := map[string]string {
+		person := map[string]string{
 			"first_name": record[firstNameIndex],
-			"last_name": record[lastNameIndex],
-			"email": record[emailIndex],
-			"company": record[companyIndex],
-			"position": record[positionIndex],
+			"last_name":  record[lastNameIndex],
+			"email":      record[emailIndex],
+			"company":    record[companyIndex],
+			"position":   record[positionIndex],
 		}
 
 		devs = append(devs, person)
 	}
+	return devs
+}
 
-	candidates = getCandidates(os.Getenv("WORKABLE_URL") + "/candidates", devs, candidates)
+func loadLinkedInConnections() *os.File {
+	file, err := os.Open("data/Connections.csv")
+	checkError("Failed to open connections file", err)
 
-	writeToFile("workable-candidates.csv", candidates)
+	return file
+}
 
-	data := make([][]string, 0)
-
-	data = append(data, []string{"First Name", "Last Name", "Email", "Company", "Position"})
-
-	for _, dev := range devs {
-		data = append(data, []string{dev["first_name"], dev["last_name"], dev["email"], dev["company"], dev["position"]})
-	}
-
-	devsNotInWorkable := findDevsInLinkedInButNotWorkable(data, candidates)
-
-	writeToFile("devsInLinkedInButNotInWorkable.csv", devsNotInWorkable)
-	writeToFile("devs.csv", data)
-
-	fmt.Println(len(devs))
-	fmt.Println(len(devsNotInWorkable))
-	fmt.Println(len(candidates))
+func loadEnv() {
+	err := godotenv.Load()
+	checkError("ENV failed to load", err)
 }
 
 func printError(err error) (n int, error error) {
@@ -129,7 +141,7 @@ func printError(err error) (n int, error error) {
 }
 
 func hasPosition(testPosition string) bool {
-	positions := [5]string{"dev", "developer", "engineer", "programmer", "code"}
+	positions := [7]string{"dev", "developer", "engineer", "programmer", "code", "consultant", "freelance"}
 
 	for _, position := range positions {
 		containsPosition := strings.Contains(strings.ToLower(testPosition), position)
@@ -150,12 +162,21 @@ func checkError(message string, err error) {
 }
 
 func getCandidates(url string, devs []map[string]string, workableCandidates [][]string) [][]string {
+	fmt.Println("Calling: " + url)
+
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", "Bearer " + os.Getenv("WORKABLE_API_KEY"))
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := client.Do(req)
+
+	//dump, err := httputil.DumpResponse(resp, true)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//fmt.Printf("%q", dump)
 
 	checkError("error making request", err)
 
@@ -167,7 +188,6 @@ func getCandidates(url string, devs []map[string]string, workableCandidates [][]
 	err = json.Unmarshal(body, &candidates)
 	checkError("couldn't unmarshall response", err)
 
-
 	for _, candidate := range candidates.Candidates {
 		for _, dev := range devs {
 			if strings.ToLower(dev["first_name"]) == strings.ToLower(candidate.Firstname) && strings.ToLower(dev["last_name"]) == strings.ToLower(candidate.Lastname) {
@@ -177,7 +197,7 @@ func getCandidates(url string, devs []map[string]string, workableCandidates [][]
 	}
 
 	if isValidUrl(candidates.Paging.Next) {
-		fmt.Println("Calling getCandidates again: " + candidates.Paging.Next)
+		fmt.Println("Calling getCandidates again")
 		return getCandidates(candidates.Paging.Next, devs, workableCandidates)
 	}
 
