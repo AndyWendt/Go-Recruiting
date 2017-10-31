@@ -78,7 +78,6 @@ func main() {
 	//tagsIndex := 6
 	devs := make([]map[string]string, 0)
 	candidates := make([][]string, 0)
-	out := make([][]string, 0)
 	candidates = append(candidates, []string{"First Name", "Last Name", "Email", "Company", "Position"})
 
 
@@ -119,12 +118,14 @@ func main() {
 		data = append(data, []string{dev["first_name"], dev["last_name"], dev["email"], dev["company"], dev["position"]})
 	}
 
+	devsNotInWorkable := findDevsInLinkedInButNotWorkable(data, candidates)
 
+	writeToFile("devsInLinkedInButNotInWorkable.csv", devsNotInWorkable)
 	writeToFile("devs.csv", data)
 
-	fmt.Println("LinkedIn Devs: " + string(len(devs)))
-	fmt.Println()
-	fmt.Println("Workable Matches: " + string(len(candidates)))
+	fmt.Println(len(devs))
+	fmt.Println(len(devsNotInWorkable))
+	fmt.Println(len(candidates))
 }
 
 func printError(err error) (n int, error error) {
@@ -210,4 +211,25 @@ func isValidUrl(toTest string) bool {
 	} else {
 		return true
 	}
+}
+
+func findDevsInLinkedInButNotWorkable(linkedInDevs [][]string, workableCandidates [][]string) [][]string {
+	out := make([][]string, 0)
+	for _, dev := range linkedInDevs {
+		found := false
+
+		for _, candidate := range workableCandidates {
+			firstNameMatch := strings.ToLower(dev[0]) == strings.ToLower(candidate[1])
+			lastNameMatch := strings.ToLower(dev[0]) == strings.ToLower(candidate[1])
+			if firstNameMatch && lastNameMatch {
+				found = true
+			}
+		}
+
+		if found == false {
+			out = append(out, dev)
+		}
+	}
+
+	return out
 }
