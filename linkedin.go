@@ -57,7 +57,7 @@ func main() {
 	devsFromLinkedInSlice := convertDevsFromLinkedInToSlice(devsFromLinkedInMaps)
 	devsNotInWorkable := findDevsInLinkedInButNotWorkable(devsFromLinkedInSlice, candidatesInWorkable)
 
-	writeToFile("workable-candidatesInWorkable.csv", candidatesInWorkable)
+	writeToFile("workable-candidates.csv", candidatesInWorkable)
 	writeToFile("devsInLinkedInButNotInWorkable.csv", devsNotInWorkable)
 	writeToFile("devsFromLinkedInMaps.csv", devsFromLinkedInSlice)
 
