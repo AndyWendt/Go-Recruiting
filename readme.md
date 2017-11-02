@@ -9,3 +9,9 @@ A utility to diff LinkedIn Connections with candidates from the Workable API.
 3. Run `linkedin.go`
 
 ## Output
+
+Three files will be output in the `data/` directory: 
+
+* `workableCandidates.csv`
+* `devsInLinkedInButNotInWorkable.csv`
+* `devsFromLinkedIn.csv`
