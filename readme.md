@@ -1,10 +1,11 @@
 # Go
 
-## Install Information
+A utility to diff LinkedIn Connections with candidates from the Workable API.  
 
-Set the GOPATH in the `~/.bash_profile` (mac)
+## Running 
 
-https://gist.github.com/vsouza/77e6b20520d07652ed7d
+1. Put `Connections.csv` in the `data/` directory
+2. Copy `.env.example` to `.env` and add your Workable API key
+3. Run `linkedin.go`
 
-https://github.com/joho/godotenv
-
+## Output
