@@ -59,7 +59,7 @@ func main() {
 
 	writeToFile("workable-candidates.csv", candidatesInWorkable)
 	writeToFile("devsInLinkedInButNotInWorkable.csv", devsNotInWorkable)
-	writeToFile("devsFromLinkedInMaps.csv", devsFromLinkedInSlice)
+	writeToFile("devsFromLinkedIn.csv", devsFromLinkedInSlice)
 
 	fmt.Println(len(devsFromLinkedInMaps))
 	fmt.Println(len(devsNotInWorkable))
