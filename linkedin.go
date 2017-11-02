@@ -52,16 +52,16 @@ type WorkableCandidatesResponse struct {
 func main() {
 	loadEnv()
 
-	devsFromLinkedInMaps := loadLinkedInDevs()
-	candidatesInWorkable := getWorkableCandidates(devsFromLinkedInMaps)
-	devsFromLinkedInSlice := convertDevsFromLinkedInToSlice(devsFromLinkedInMaps)
+	devMapsFromLinkedIn := loadLinkedInDevs()
+	candidatesInWorkable := getWorkableCandidates(devMapsFromLinkedIn)
+	devsFromLinkedInSlice := convertDevsFromLinkedInToSlice(devMapsFromLinkedIn)
 	devsNotInWorkable := findDevsInLinkedInButNotWorkable(devsFromLinkedInSlice, candidatesInWorkable)
 
 	writeToFile("workableCandidates.csv", candidatesInWorkable)
 	writeToFile("devsInLinkedInButNotInWorkable.csv", devsNotInWorkable)
 	writeToFile("devsFromLinkedIn.csv", devsFromLinkedInSlice)
 
-	fmt.Println(len(devsFromLinkedInMaps))
+	fmt.Println(len(devMapsFromLinkedIn))
 	fmt.Println(len(devsNotInWorkable))
 	fmt.Println(len(candidatesInWorkable))
 }
